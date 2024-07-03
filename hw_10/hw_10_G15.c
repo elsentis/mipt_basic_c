@@ -11,15 +11,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-
-#define BUFFER_SIZE 5
 #define STRING_FOR_DELETE "Cao"
+#define BUFFER_SIZE strlen(STRING_FOR_DELETE)
 #define STRING_FOR_REPLACE "Ling"
 
 int is_letter(char ch);
-int name_flag(char* arr);
+int name_flag(char* arr, int size);
 void change_string(char* str, FILE* f);
+void renew_buffer_(char ch, char* buffer, int buffer_size);
+int name_flag_check(FILE* in, int size);
+int renew_buffer_all(FILE* f, char* buffer, int buffer_size);
 
 
 
@@ -39,43 +42,93 @@ int main(void)
 		exit(EXIT_FAILURE);
 	}
 
-	char buffer[BUFFER_SIZE] = { 0 };
+	int buffer_size = (int)strlen(STRING_FOR_DELETE);
+	char* buffer = malloc(sizeof(char) * buffer_size);
+
+	int renew_buffer_fail_flag = 0;
 
 	char ch = 0;
 
-	for (int i = 0; (((ch = getc(in)) != '\n') && (ch != EOF)) && (i < BUFFER_SIZE);i++)
+	int i = 0;
+
+	for ( ; (i < buffer_size) && (((ch = getc) != '\n') && (ch != EOF)); i++)
 	{
-		buffer[i] = ch;
+		*(buffer + i) = getc(in);
 	}
 
-	char first_check[BUFFER_SIZE] = { ' ', buffer[0], buffer[1], buffer[2], buffer[3] };
-
-	if (name_flag(first_check))
+	if (i < buffer_size)
 	{
-		fprintf(out, STRING_FOR_REPLACE);
+		fprintf(out,"%s", buffer);
+		return 0;
 	}
 
-
-
-	for (; ((ch = getc(in)) != '\n') && (ch != EOF);)
+	if (name_flag(buffer, buffer_size))
 	{
-		for (int i = 0; i < BUFFER_SIZE - 1; i++)
-		{
-			buffer[i] = buffer[i + 1];
-		}
-		buffer[BUFFER_SIZE - 1] = ch;
+		fprintf(out,"%s", STRING_FOR_REPLACE);
+		(renew_buffer_fail_flag = (renew_buffer_all(in, buffer, buffer_size)));
 
-		if (name_flag(buffer))
+		if (renew_buffer_fail_flag != buffer_size)
 		{
-			change_string(buffer, out);
-		}
-		else
-		{
-			putc(ch, out);
+			for (int i = 0; i < renew_buffer_fail_flag; i++)
+			{
+				putc(buffer[i], out);
+			}
+
+				free(buffer);
+
+				fclose(in);
+				fclose(out);
+
+				return 0;
 		}
 	}
 
-	//printf("%d\n", name_flag(" Cao,"));
+		for (int i = 0; (ch != '\n') && (ch != EOF); i++)
+		{
+			if (i != 0)
+			{
+				renew_buffer_(ch, buffer, buffer_size);
+			}
+			
+
+ 			if (name_flag(buffer, buffer_size) && name_flag_check(in, buffer_size))
+			{
+				fprintf(out, STRING_FOR_REPLACE);
+				if ((renew_buffer_fail_flag = (renew_buffer_all(in, buffer, buffer_size))) != buffer_size)
+				{
+					for (int i = 0; i < renew_buffer_fail_flag; i++)
+					{
+						putc(buffer[i], out);
+					}
+
+					free(buffer);
+
+					fclose(in);
+					fclose(out);
+
+					return 0;
+				}
+				fprintf(out, "%c", buffer[0]);
+				ch = getc(in);
+				continue;
+			}
+			else
+			{
+				ch = getc(in);
+				fprintf(out, "%c", buffer[0]);
+			}	
+
+			
+		}
+
+
+		for (int i = 1; i < buffer_size; i++)
+		{
+			putc(buffer[i], out);
+		}
+
+
+	free(buffer);
 
 	fclose(in);
 	fclose(out);
@@ -83,27 +136,24 @@ int main(void)
 	return 0;
 }
 
-void change_string(char * str, FILE * f)
+void change_string(char* str, FILE* f)
 {
 	fseek(f, -4, SEEK_CUR);
 	fprintf(f, STRING_FOR_REPLACE);
 	putc(str[4], f);
 }
 
-int name_flag(char* arr)
+int name_flag(char* str, int size)
 {
-	if ((!(is_letter(arr[0])) && (!(is_letter(arr[4])))))
+	for (int i = 0; i < size; i++)
 	{
-		if (arr[1] == 'c' || arr[1] == 'C')
+		if (str[i] != STRING_FOR_DELETE[i])
 		{
-			if (arr[2] == 'a' && arr[3] == 'o')
-			{
-				return 1;
-			}
+			return 0;
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 int is_letter(char ch)
@@ -115,5 +165,67 @@ int is_letter(char ch)
 	else
 	{
 		return 0;
+	}
+}
+
+void renew_buffer_(char ch, char* buffer, int buffer_size)
+{
+	for (int i = 0; i < buffer_size - 1; i++)
+	{
+		buffer[i] = buffer[i + 1];
+	}
+	buffer[buffer_size - 1] = ch;
+}
+
+int name_flag_check(FILE* in, int size)
+{
+	char ch1 = 0, ch2 = 0;
+	
+	int f_tell = ftell(in);
+
+	if (f_tell < size)
+	{
+		ch1 = ' ';
+	}
+	else
+	{
+		fseek(in, -(size+1), SEEK_CUR);
+
+		ch1 = getc(in);
+	}
+
+	fseek(in, +(size), SEEK_CUR);
+
+	ch2 = getc(in);
+	fseek(in, f_tell, SEEK_SET);
+
+	if (!(is_letter(ch1)) && !(is_letter(ch2)))
+	{
+		return 1;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+int renew_buffer_all(FILE* f, char* buffer, int buffer_size)
+{
+	char ch = 0;
+	int i = 0;
+
+	for (; (i < buffer_size) && ((ch = getc(f)) != '\n') && (ch != EOF); i++)
+	{
+		buffer[i] = ch;
+	}
+
+	if (i < buffer_size)
+	{
+		buffer[i] = ch;
+		return i + 1;
+	}
+	else
+	{
+		return i;
 	}
 }

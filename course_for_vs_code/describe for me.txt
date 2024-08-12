@@ -1,0 +1,27 @@
+lesson11-main (
+main.c
+// скопированный файл в котором все функции для использования 
+// инструментов очереди и стопка 
+// (инструмент очередь хочу использовать для обработки строк с ошибочными данными, 
+// так как мы не знаем сколько их в исходном файле изначально)
+
+hw_12
+main.c //просто тест для функций 
+temp_api.c //должны быть все функции перечисленные в temp_api.h  (ниже), но ох тут нет
+(возможно они остались в файле у василины на компе, вообще то я их делал 
+float monthly_average_temperature(struct sensor **, int, int );
+int monthly_minimum_temperature(struct sensor *, int );
+int monthly_maximum_temperature(struct sensor *, int );
+float year_average_temperature(struct sensor *, int );
+int year_minimum_temperature(struct sensor *, int );
+int year_maximum_temperature(struct sensor *, int );
+int file_to_arr_of_sensors(FILE *, struct sensor *);
+uint32_t file_to_string_count(FILE *f);
+
+getopt_test_func
+main.c
+//обработка вызова программы из коммандной строки, надо эту идею дополнять 
+//функциями обработки файла исходя из флагов 
+
+basic_c_course_work
+просто задание (форма отчета по курсовой с файлами для обработки)

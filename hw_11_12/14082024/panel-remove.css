@@ -1,0 +1,7 @@
+div#panels-container.left.icons.overlay.minimized {
+    display: none;
+}
+
+div#panels-container.overlay.minimized {
+    position: absolute;
+}

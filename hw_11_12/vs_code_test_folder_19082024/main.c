@@ -17,16 +17,7 @@ int main(int argc, char **argv)
 
     file_to_array_of_sensors(&current_input_data);
 
-    if (current_input_data.month)
-    {   printf("#\tYear\tMonth\tMonthAvg\tMonthMax\tMonthMin\n");
-        printf("%d\t", 1);
-        printf("%d\t", current_input_data.array_of_sensors[0]->year);
-        printf("%d", current_input_data.month);
-       // printf("%f", average_month_temperature(current_input_data.month, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
-       // printf("%d", maximum_month_temperature(current_input_data.month, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
-       // printf("%d", minimum_month_temperature(current_input_data.month, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
-       // printf("\n");
-    }
+    
 
     return 0;
 }

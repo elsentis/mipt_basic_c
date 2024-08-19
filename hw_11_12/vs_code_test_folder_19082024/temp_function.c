@@ -165,14 +165,14 @@ void file_to_array_of_sensors(struct input_data* in)
     in->processed_sensors_number = number_of_readed_sensors;
 }
 
-int string_in_file_to_sensor_struct(FILE* f, struct sensor* sens)
+int string_in_file_to_sensor_struct(FILE* f, struct sensor** sens)
 {
-    sens->year = 0;
-    sens->month = 0;
-    sens->day = 0;
-    sens->hour = 0;
-    sens->minute = 0;
-    sens->temperature = 0;
+    (*sens)->year = 0;
+    (*sens)->month = 0;
+    (*sens)->day = 0;
+    (*sens)->hour = 0;
+    (*sens)->minute = 0;
+    (*sens)->temperature = 0;
 
 
     int sensor_element = 0;
@@ -186,28 +186,28 @@ int string_in_file_to_sensor_struct(FILE* f, struct sensor* sens)
             switch (sensor_element)
             {
             case 0:
-                sens->year = sens->year * 10 + (ch - '0');
+                (*sens)->year = (*sens)->year * 10 + (ch - '0');
                 break;
             case 1:
-                sens->month = sens->month * 10 + (ch - '0');
+                (*sens)->month = (*sens)->month * 10 + (ch - '0');
                 break;
             case 2:
-                sens->day = sens->day * 10 + (ch - '0');
+                (*sens)->day = (*sens)->day * 10 + (ch - '0');
                 break;
             case 3:
-                sens->hour = sens->hour * 10 + (ch - '0');
+                (*sens)->hour = (*sens)->hour * 10 + (ch - '0');
                 break;
             case 4:
-                sens->minute = sens->minute * 10 + (ch - '0');
+                (*sens)->minute = (*sens)->minute * 10 + (ch - '0');
                 break;
             case 5:
                 if (negative_temperature_flag)
                 {
-                    sens->temperature = sens->temperature * 10 - (ch - '0');
+                    (*sens)->temperature = (*sens)->temperature * 10 - (ch - '0');
                 }
                 else
                 {
-                    sens->temperature = sens->temperature * 10 + (ch - '0');
+                    (*sens)->temperature = (*sens)->temperature * 10 + (ch - '0');
                 }
                 break;
             }
@@ -220,7 +220,7 @@ int string_in_file_to_sensor_struct(FILE* f, struct sensor* sens)
         {
             continue;
         }
-        else if ((ch == '-') && (sensor_element == 5) && (sens->temperature == 0))
+        else if ((ch == '-') && (sensor_element == 5) && ((*sens)->temperature == 0))
         {
             negative_temperature_flag = 1;
         }
@@ -240,24 +240,24 @@ int string_in_file_to_sensor_struct(FILE* f, struct sensor* sens)
     }
 }
 
-int check_correct_sensor(struct sensor* s)
+int check_correct_sensor(struct sensor** s)
 {
-    if ((s->year < 1000) || (s->year > 2024))
+    if (((*s)->year < 1000) || ((*s)->year > 2024))
         return 0;
 
-    if ((s->month < 1) || (s->month > 12))
+    if (((*s)->month < 1) || ((*s)->month > 12))
         return 0;
 
-    if ((s->day < 1) || (s->day > 31))
+    if (((*s)->day < 1) || ((*s)->day > 31))
         return 0;
 
-    if ((s->hour < 0) || (s->hour > 23))
+    if (((*s)->hour < 0) || ((*s)->hour > 23))
         return 0;
 
-    if ((s->minute < 0) || (s->minute > 59))
+    if (((*s)->minute < 0) || ((*s)->minute > 59))
         return 0;
 
-    if ((s->temperature < -99) || (s->temperature > 99))
+    if (((*s)->temperature < -99) || ((*s)->temperature > 99))
         return 0;
 
     return 1;
@@ -330,6 +330,87 @@ int16_t minimum_month_temperature(int month_number, int year_number, struct sens
     }
 
         return min_temp;
+}
+
+float average_year_temperature(struct sensor** s, int n)
+{
+    float res = 0; 
+    int8_t sum = 0;
+    int i = 0; 
+
+    for(; i < n; i++)
+    {
+        sum += (*s)->temperature;
+    }
+
+    res = (float)(sum / i);
+
+    return res;
+}
+
+int16_t minimum_year_temperature(struct sensor** s, int n)
+{
+    int16_t min_temp = 100;
+
+    for(int i = 0; i < n; i++)
+    {
+        if((s[i]->temperature < min_temp))
+        {
+            min_temp = s[i]->temperature;
+        }
+    }
+
+    return min_temp;
+}
+
+int16_t maximum_year_temperature(struct sensor** s, int n)
+{
+    int16_t max_temp = -100;
+
+    for(int i = 0; i < n; i++)
+    {
+        if((s[i]->temperature > max_temp))
+        {
+            max_temp = s[i]->temperature;
+        }
+    }
+
+    return max_temp;
+}
+
+void print_result(struct input_data* in)
+{
+    if (in->month)
+    {   printf("#\tYear\tMonth\tMonthAvg\tMonthMax\tMonthMin\n");
+        printf("%-*d\t", strlen("#"), 1);
+        printf("%-*d\t", strlen("Year"), current_input_data.array_of_sensors[0]->year);
+        printf("%-*d\t", strlen("Month"),current_input_data.month);
+        printf("%-*.2f\t", strlen("MonthAvg"),average_month_temperature(current_input_data.month, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
+        printf("%-*d\t", strlen("MonthMax"), maximum_month_temperature(current_input_data.month, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
+        printf("%-*d\t", strlen("MonthMin"), minimum_month_temperature(current_input_data.month, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
+        printf("\n");
+    }
+    else
+    {
+        printf("#\tYear\tMonth\tMonthAvg\tMonthMax\tMonthMin\n");
+
+        for(int i = 0; i < 12; i++)
+        {
+            printf("%-*d\t", strlen("#"), i);
+            printf("%-*d\t", strlen("Year"), current_input_data.array_of_sensors[0]->year);
+            printf("%-*d\t", strlen("Month"),i+1);
+            printf("%-*.2f\t", strlen("MonthAvg"),average_month_temperature(i+1, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
+            printf("%-*d\t", strlen("MonthMax"), maximum_month_temperature(i+1, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
+            printf("%-*d\t", strlen("MonthMin"), minimum_month_temperature(i+1, current_input_data.array_of_sensors[0]->year, current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
+            printf("\n");
+        }
+
+        printf("Year statistic: average is %.2f, max is %d, min is %d", 
+        average_year_temperature(current_input_data.array_of_sensors, current_input_data.processed_sensors_number),
+        maximum_year_temperature(current_input_data.array_of_sensors, current_input_data.processed_sensors_number),
+        minimum_year_temperature(current_input_data.array_of_sensors, current_input_data.processed_sensors_number));
+
+    }
 }
 
 int is_number(char ch)

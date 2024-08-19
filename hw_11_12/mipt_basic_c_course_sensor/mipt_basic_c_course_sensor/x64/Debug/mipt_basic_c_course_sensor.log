@@ -1,4 +1,0 @@
-﻿  temp_api.c
-C:\Users\alexey\source\repos\mipt_basic_c_course_sensor\mipt_basic_c_course_sensor\temp_api.c(55,1): warning C4029: declared formal parameter list different from definition
-C:\Users\alexey\source\repos\mipt_basic_c_course_sensor\mipt_basic_c_course_sensor\temp_api.c(80,13): warning C4013: 'is_number' undefined; assuming extern returning int
-  mipt_basic_c_course_sensor.vcxproj -> C:\Users\alexey\source\repos\mipt_basic_c_course_sensor\x64\Debug\mipt_basic_c_course_sensor.exe
